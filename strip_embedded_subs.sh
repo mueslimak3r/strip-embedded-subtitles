@@ -50,7 +50,7 @@ test_run() {
         echo "invalid file"
     else
         if [[ -e "$INPUT_FILE" ]] ; then
-            if [[ $(mkvinfo "$INPUT_FILE" 2>&1 | grep -E subtitles) == "" ]] ; then
+            if [[ $(ffprobe "$INPUT_FILE" 2>&1 | grep -E Subtitle) == "" ]] ; then
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
@@ -70,23 +70,22 @@ strip_subs() {
         echo "invalid file"
     else
         if [[ -e "$INPUT_FILE" ]] ; then
-            if [[ $(mkvinfo "$INPUT_FILE" 2>&1 | grep -E subtitles) == "" ]] ; then
+            if [[ $(ffprobe "$INPUT_FILE" 2>&1 | grep -E Subtitle) == "" ]] ; then
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
                 mv "$INPUT_FILE" "$INPUT_FILE_BACKUP"
-                mkvmerge -o "$INPUT_FILE" --no-subtitles "$INPUT_FILE_BACKUP" 2>&1>/dev/null
-                if [[ $(echo "$?") == "0" ]] ; then
-                    echo -e "${GREEN}finished processing $INPUT_FILE${NC}"
-                else
+                if [[ $(ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic -y 2>&1) != "" ]] ; then
                     echo -e "${RED}something went wrong with ffmpeg${NC}"
-                fi
-                
-                if [[ ${IS_DESTRUCTIVE} == 1 ]] ; then
-                    echo -e "${RED}Removed backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
-                    rm "$INPUT_FILE_BACKUP"
+                    restore_old "$INPUT_FILE_BACKUP"
                 else
-                    echo -e "${CYAN}Kept backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                    echo -e "${GREEN}finished processing $INPUT_FILE${NC}"
+                    if [[ ${IS_DESTRUCTIVE} == 1 ]] ; then
+                        echo -e "${RED}Removed backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                        rm "$INPUT_FILE_BACKUP"
+                    else
+                        echo -e "${CYAN}Kept backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                    fi
                 fi
             fi
         else
