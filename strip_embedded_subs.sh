@@ -66,6 +66,8 @@ strip_subs() {
     INPUT_FILE="$1"
     INPUT_FILE_BACKUP="$1_old"
 
+    echo -e "$INPUT_FILE"
+
     if [ "$1" == "" ] ; then
         echo "invalid file"
     else
@@ -74,17 +76,23 @@ strip_subs() {
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
-                mv "$INPUT_FILE" "$INPUT_FILE_BACKUP"
-                if [[ $(ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic -y 2>&1) != "" ]] ; then
-                    echo -e "${RED}something went wrong with ffmpeg${NC}"
-                    restore_old "$INPUT_FILE_BACKUP"
+                if [[ -e "$INPUT_FILE_BACKUP" ]] ; then
+                    echo -e "${RED}A backup file for this video already exists. Skipping to avoid corrupting an original file${NC}"
                 else
-                    echo -e "${GREEN}finished processing $INPUT_FILE${NC}"
-                    if [[ ${IS_DESTRUCTIVE} == 1 ]] ; then
-                        echo -e "${RED}Removed backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
-                        rm "$INPUT_FILE_BACKUP"
+                    mv "$INPUT_FILE" "$INPUT_FILE_BACKUP"
+                    #< /dev/null ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic 2>&1
+                    #exit
+                    if [[ $(< /dev/null ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic -y 2>&1) != "" ]] ; then
+                        echo -e "${RED}something went wrong with ffmpeg${NC}"
+                        restore_old "$INPUT_FILE_BACKUP"
                     else
-                        echo -e "${CYAN}Kept backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                        echo -e "${GREEN}finished processing $INPUT_FILE${NC}"
+                        if [[ ${IS_DESTRUCTIVE} == 1 ]] ; then
+                            echo -e "${RED}Removed backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                            rm "$INPUT_FILE_BACKUP"
+                        else
+                            echo -e "${CYAN}Kept backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                        fi
                     fi
                 fi
             fi
@@ -114,6 +122,12 @@ if [[ "$INPUT_DIR" == "/" || "$INPUT_DIR" == "/mnt" || "$INPUT_DIR" == "/mnt/" |
     echo -e "${RED}Stopping script from running on [${PURPLE}$INPUT_DIR]${RED} for user safety${NC}\n"
     exit
 fi
+
+if [[ $(ffmpeg 2>&1 | grep version) == "" ]]; then
+    echo -e "${RED}ffmpeg either isn't installed or isn't reachable${NC}\n"
+    exit
+fi
+
 
 if [ "$INPUT_DIR" == "" ] || [ "$2" == "" ] || [[ "$2" != "--TEST" && "$2" != "--KEEP_OLD=YES" && "$2" != "--KEEP_OLD=NO" && "$2" != "--RESTORE_BACKUPS" && "$2" != "--REMOVE_BACKUPS" && "$2" != "--LIST_BACKUPS" ]]; then
     echo -e "\nusage: strip_subs.sh /path/to/media/folder --TEST ${YELLOW}or${NC} --KEEP_OLD=YES/NO ${YELLOW}or${NC} --LIST/RESTORE/REMOVE_BACKUPS"
