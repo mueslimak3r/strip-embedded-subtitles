@@ -158,15 +158,18 @@ if [[ "$files" == "" || $(echo -e "$files" | wc -l)  -eq 0 ]]; then
    echo -e "${RED}No matching files found in $INPUT_DIR${NC}"
 else
     echo "found $(echo "$files" | wc -l) files"
-    if [[ "$OPERATION_MODE" == "NORMAL" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'strip_subs "$@"' _
-    elif [[ "$OPERATION_MODE" == "TESTRUN" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'test_run "$@"' _
-    elif [[ "$OPERATION_MODE" == "LISTBACKUPS" ]] ; then
-        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'list_old "$@"' _
-    elif [[ "$OPERATION_MODE" == "RESTORE" ]] ; then
-        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'restore_old "$@"' _
-    elif [[ "$OPERATION_MODE" == "CLEAN" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'remove_old "$@"' _
-    fi
+    while IFS= read -r line
+    do
+        if [[ "$OPERATION_MODE" == "NORMAL" ]] ; then
+            strip_subs "$line"
+        elif [[ "$OPERATION_MODE" == "TESTRUN" ]] ; then
+            test_run "$line"
+        elif [[ "$OPERATION_MODE" == "LISTBACKUPS" ]] ; then
+            list_old "$line"
+        elif [[ "$OPERATION_MODE" == "RESTORE" ]] ; then
+            restore_old "$line"
+        elif [[ "$OPERATION_MODE" == "CLEAN" ]] ; then
+            remove_old "$line"
+        fi
+    done < <(printf '%s\n' "$files")
 fi
