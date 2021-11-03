@@ -3,7 +3,7 @@
 
 ## Usage
 
-usage: strip_subs.sh /path/to/media/folder --TEST or --KEEP_OLD=YES/NO or --LIST/RESTORE/REMOVE_BACKUPS
+usage: strip_embedded_subs.sh /path/to/media/folder --TEST or --KEEP_OLD=YES/NO or --LIST/RESTORE/REMOVE_BACKUPS
 
 --KEEP_OLD=YES/NO controls deleting the backup files containing subtitles
 If you keep the backup files it will double your hard drive usage
