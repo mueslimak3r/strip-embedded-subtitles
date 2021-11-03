@@ -54,7 +54,11 @@ test_run() {
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
-                echo -e "Would ${RED}Remove${NC} or ${CYAN}keep${NC} backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC} in non-test mode"
+                if [[ -e "$INPUT_FILE_BACKUP" ]] ; then
+                    echo -e "${RED}A backup file for this video already exists. Skipping to avoid corrupting an original file${NC}"
+                else
+                    echo -e "Would ${RED}Remove${NC} or ${CYAN}keep${NC} backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC} in non-test mode"
+                fi
             fi
         else
             echo "$INPUT_FILE does not exist"
@@ -78,8 +82,6 @@ strip_subs() {
                     echo -e "${RED}A backup file for this video already exists. Skipping to avoid corrupting an original file${NC}"
                 else
                     mv "$INPUT_FILE" "$INPUT_FILE_BACKUP"
-                    #< /dev/null ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic 2>&1
-                    #exit
                     if [[ $(< /dev/null ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic -y 2>&1) != "" ]] ; then
                         echo -e "${RED}something went wrong with ffmpeg${NC}"
                         restore_old "$INPUT_FILE_BACKUP"
@@ -100,21 +102,6 @@ strip_subs() {
     fi
 }
 
-#export RED
-#export GREEN
-#export YELLOW
-#export PURPLE
-#export BLACK
-#export CYAN
-#export NC
-
-#export IS_DESTRUCTIVE
-
-#export -f strip_subs
-#export -f remove_old
-#export -f restore_old
-#export -f list_old
-#export -f test_run
 
 if [[ "$INPUT_DIR" == "/" || "$INPUT_DIR" == "/mnt" || "$INPUT_DIR" == "/mnt/" || "$INPUT_DIR" == "/boot" || "$INPUT_DIR" == "/boot/" ]] ; then
     echo -e "${RED}Stopping script from running on [${PURPLE}$INPUT_DIR]${RED} for user safety${NC}\n"
