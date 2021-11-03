@@ -54,7 +54,7 @@ test_run() {
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
-                echo -e "Could ${RED}Remove${NC} or ${CYAN}keep${NC} backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC}"
+                echo -e "Would ${RED}Remove${NC} or ${CYAN}keep${NC} backup file: ${PURPLE}$INPUT_FILE_BACKUP${NC} in non-test mode"
             fi
         else
             echo "$INPUT_FILE does not exist"
