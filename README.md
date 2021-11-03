@@ -1,4 +1,4 @@
-<h1 align="center">Jellyfin Android TV</h1>
+<h1 align="center">strip-embedded-subtitles</h1>
 <h3 align="center">Recursively find all video files in a directory with embedded subtitles and remove them</h3>
 
 ## Usage
@@ -10,8 +10,7 @@ If you keep the backup files it will double your hard drive usage
 
 --LIST/RESTORE/REMOVE_BACKUPS can list, restore, or remove the old files containing subtitles
 
-
---TEST runs the script without affecting your file
+--TEST runs the script without actually doing any muxing
 
 ### Dependencies
 
