@@ -155,7 +155,7 @@ files=$(find "$INPUT_DIR" -type f 2>/dev/null | egrep "$file_pattern")
 if [[ "$files" == "" || $(echo -e "$files" | wc -l)  -eq 0 ]]; then
    echo -e "${RED}No matching files found in $INPUT_DIR${NC}"
 else
-    echo "found $(echo "$files" | wc -l) files"
+    echo "found $(echo "$files" | wc -l) files matching the input pattern"
     while IFS= read -r line
     do
         if [[ "$OPERATION_MODE" == "NORMAL" ]] ; then
@@ -170,4 +170,5 @@ else
             remove_old "$line"
         fi
     done < <(printf '%s\n' "$files")
+    echo "found $(echo "$files" | wc -l) files matching the input pattern"
 fi
