@@ -1,4 +1,4 @@
-<h1 align="center">Jellyfin Android TV</h1>
+<h1 align="center">strip-embedded-subtitles</h1>
 <h3 align="center">Recursively find all video files in a directory with embedded subtitles and remove them</h3>
 
 ## Usage
