@@ -95,21 +95,21 @@ strip_subs() {
     fi
 }
 
-export RED
-export GREEN
-export YELLOW
-export PURPLE
-export BLACK
-export CYAN
-export NC
+#export RED
+#export GREEN
+#export YELLOW
+#export PURPLE
+#export BLACK
+#export CYAN
+#export NC
 
-export IS_DESTRUCTIVE
+#export IS_DESTRUCTIVE
 
-export -f strip_subs
-export -f remove_old
-export -f restore_old
-export -f list_old
-export -f test_run
+#export -f strip_subs
+#export -f remove_old
+#export -f restore_old
+#export -f list_old
+#export -f test_run
 
 if [[ "$INPUT_DIR" == "/" || "$INPUT_DIR" == "/mnt" || "$INPUT_DIR" == "/mnt/" || "$INPUT_DIR" == "/boot" || "$INPUT_DIR" == "/boot/" ]] ; then
     echo -e "${RED}Stopping script from running on [${PURPLE}$INPUT_DIR]${RED} for user safety${NC}\n"
