@@ -10,8 +10,7 @@ If you keep the backup files it will double your hard drive usage
 
 --LIST/RESTORE/REMOVE_BACKUPS can list, restore, or remove the old files containing subtitles
 
-
---TEST runs the script without affecting your file
+--TEST runs the script without actually doing any muxing
 
 ### Dependencies
 
