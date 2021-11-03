@@ -66,8 +66,6 @@ strip_subs() {
     INPUT_FILE="$1"
     INPUT_FILE_BACKUP="$1_old"
 
-    echo -e "$INPUT_FILE"
-
     if [ "$1" == "" ] ; then
         echo "invalid file"
     else
