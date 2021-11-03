@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script strips embedded subtitles from video files using ffmpeg
+# This script strips embedded subtitles from video files
 # The script can leave a backup of the old files if specified, and can restore or remove the backups
 
 RED='\033[1;91m'
@@ -50,7 +50,7 @@ test_run() {
         echo "invalid file"
     else
         if [[ -e "$INPUT_FILE" ]] ; then
-            if [[ $(ffprobe "$INPUT_FILE" 2>&1 | grep -E Subtitle) == "" ]] ; then
+            if [[ $(mkvinfo "$INPUT_FILE" 2>&1 | grep -E subtitles) == "" ]] ; then
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
@@ -70,15 +70,16 @@ strip_subs() {
         echo "invalid file"
     else
         if [[ -e "$INPUT_FILE" ]] ; then
-            if [[ $(ffprobe "$INPUT_FILE" 2>&1 | grep -E Subtitle) == "" ]] ; then
+            if [[ $(mkvinfo "$INPUT_FILE" 2>&1 | grep -E subtitles) == "" ]] ; then
                 echo -e "$INPUT_FILE ${PURPLE}doesnt contain subtitles${NC}"
             else
                 echo -e "$INPUT_FILE ${YELLOW}contains subtitles${NC}"
                 mv "$INPUT_FILE" "$INPUT_FILE_BACKUP"
-                if [[ $(ffmpeg -i "$INPUT_FILE_BACKUP" -map 0 -map -0:s -c copy "$INPUT_FILE" -hide_banner -loglevel panic -y 2>&1) != "" ]] ; then
-                    echo -e "${RED}something went wrong with ffmpeg${NC}"
+                mkvmerge -o "$INPUT_FILE" --no-subtitles "$INPUT_FILE_BACKUP" 2>&1>/dev/null
+                if [[ $(echo "$?") == "0" ]] ; then
+                    echo -e "${GREEN}finished processing $INPUT_FILE${NC}"
                 else
-                    echo -e "${GREEN}ffmpeg finished processing $INPUT_FILE${NC}"
+                    echo -e "${RED}something went wrong with ffmpeg${NC}"
                 fi
                 
                 if [[ ${IS_DESTRUCTIVE} == 1 ]] ; then
@@ -151,21 +152,21 @@ else
     fi
 fi
 
-files=$(find $INPUT_DIR -type f 2>/dev/null | egrep $file_pattern)
+files=$(find "$INPUT_DIR" -type f 2>/dev/null | egrep "$file_pattern")
 
 if [[ "$files" == "" || $(echo -e "$files" | wc -l)  -eq 0 ]]; then
    echo -e "${RED}No matching files found in $INPUT_DIR${NC}"
 else
     echo "found $(echo "$files" | wc -l) files"
     if [[ "$OPERATION_MODE" == "NORMAL" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P2 bash -c 'strip_subs "$@"' _
+        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'strip_subs "$@"' _
     elif [[ "$OPERATION_MODE" == "TESTRUN" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P2 bash -c 'test_run "$@"' _
+        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'test_run "$@"' _
     elif [[ "$OPERATION_MODE" == "LISTBACKUPS" ]] ; then
-        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P2 bash -c 'list_old "$@"' _
+        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'list_old "$@"' _
     elif [[ "$OPERATION_MODE" == "RESTORE" ]] ; then
-        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P2 bash -c 'restore_old "$@"' _
+        echo -e "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'restore_old "$@"' _
     elif [[ "$OPERATION_MODE" == "CLEAN" ]] ; then
-        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P2 bash -c 'remove_old "$@"' _
+        echo "$files" | tr '\n' '\0' | xargs -0 -n1 -P4 bash -c 'remove_old "$@"' _
     fi
 fi

@@ -15,5 +15,5 @@ If you keep the backup files it will double your hard drive usage
 
 ### Dependencies
 
-- Bash
-- FFmpeg
+- bash
+- mkvtoolnix-cli
